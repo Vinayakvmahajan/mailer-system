@@ -1,5 +1,14 @@
 package com.mailer.service;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -23,18 +32,58 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+/**
+ * Email service class
+ * 
+ * @version 1.0 06-NOV-20
+ * @Author Vinayak Mahajan
+ *
+ **/
 @Service
 public class EmailService {
 
 	private JavaMailSender javaMailSender;
 
+	private Map<String, String> credentials = new HashMap<>();
+
+	private List<String> recipientList = new ArrayList<String>();
+
 	public EmailService(JavaMailSender javaMailSender) {
 		this.javaMailSender = javaMailSender;
+		credentials.put("testing20201011@gmail.com", "dell@123");
+		credentials.put("testing20201012@gmail.com", "dell@123");
+		credentials.put("testing20201013@gmail.com", "dell@123");
+		credentials.put("testing20201014@gmail.com", "dell@123");
+		credentials.put("testing20201015@gmail.com", "dell@123");
+		recipientList.add("testing20201011@yahoo.com");
+		recipientList.add("testing20201012@yahoo.com");
+		recipientList.add("testing20201013@yahoo.com");
+		recipientList.add("testing20201014@yahoo.com");
+		recipientList.add("testing20201015@yahoo.com");
 	}
 
+	/**
+	 * Send mail
+	 * 
+	 * @throws MailException
+	 * @throws InterruptedException
+	 * @throws IOException 
+	 * 
+	 */
 	@Async
-	public void sendMail() throws MailException, InterruptedException {
+	public void sendMail() throws MailException, InterruptedException, IOException {
 
+		FileInputStream fis = new FileInputStream("mailBody.txt");
+		byte[] buffer = new byte[10];
+		StringBuilder sb = new StringBuilder();
+		while (fis.read(buffer) != -1) {
+			sb.append(new String(buffer));
+			buffer = new byte[10];
+		}
+		fis.close();
+
+		String body = sb.toString();
+		
 		// Create object of Property file
 		Properties props = new Properties();
 
@@ -53,56 +102,107 @@ public class EmailService {
 		// set the port of SMTP server
 		props.put("mail.smtp.port", "465");
 
-		// This will handle the complete authentication
-		Session session = Session.getDefaultInstance(props,
+		int sCount = 0;
+		int rCount = 0;
 
-				new javax.mail.Authenticator() {
+		for (Map.Entry<String, String> cread : credentials.entrySet()) {
+			++sCount;
+			rCount=0;
+			for (String recipient : recipientList) {
+				++rCount;
+				// This will handle the complete authentication
+				Session session = Session.getDefaultInstance(props,
 
-					protected PasswordAuthentication getPasswordAuthentication() {
+						new javax.mail.Authenticator() {
 
-						return new PasswordAuthentication("add your email", "add your password");
+							protected PasswordAuthentication getPasswordAuthentication() {
 
-					}
+								return new PasswordAuthentication(cread.getKey(), cread.getKey());
 
-				});
+							}
 
+						});
+
+				try {
+
+					// Create object of MimeMessage class
+					Message message = new MimeMessage(session);
+
+					// Set the from address
+					message.setFrom(new InternetAddress("mukeshotwani.50@gmail.com"));
+
+					// Set the recipient address
+					message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("mukesh.otwani50@gmail.com"));
+
+					// Add the subject link
+					message.setSubject(sCount + "VINAYAK VASANTRAO MAHAJAN" + rCount);
+
+					writeFile(sCount + "VINAYAK VASANTRAO MAHAJAN" + rCount);
+
+					// Create object to add multimedia type content
+					BodyPart messageBodyPart = new MimeBodyPart();
+
+					// Set the body of email
+					messageBodyPart.setText(body);
+
+					// Create object of MimeMultipart class
+					Multipart multipart = new MimeMultipart();
+
+					// Part two is attachment
+					messageBodyPart = new MimeBodyPart();
+					String filename = "attachment.txt";
+					DataSource source = new FileDataSource(filename);
+					messageBodyPart.setDataHandler(new DataHandler(source));
+					messageBodyPart.setFileName(filename);
+
+					multipart.addBodyPart(messageBodyPart);
+
+					// set the content
+					message.setContent(multipart);
+
+					// finally send the email
+					Transport.send(message);
+
+					System.out.println("=====Email Sent=====");
+
+				} catch (MessagingException e) {
+
+					throw new RuntimeException(e);
+
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * Write the file with new content mail
+	 * 
+	 * @param content
+	 */
+	public void writeFile(String content) {
+		BufferedWriter bw = null;
 		try {
+			File file = new File("attachment.txt");
 
-			// Create object of MimeMessage class
-			Message message1 = new MimeMessage(session);
+			if (!file.exists()) {
+				file.createNewFile();
+			}
 
-			// Set the from address
-			message1.setFrom(new InternetAddress("mukeshotwani.50@gmail.com"));
+			FileWriter fw = new FileWriter(file);
+			bw = new BufferedWriter(fw);
+			bw.write(content);
+			System.out.println("File written Successfully");
 
-			// Set the recipient address
-			message1.setRecipients(Message.RecipientType.TO, InternetAddress.parse("mukesh.otwani50@gmail.com"));
-
-			// Add the subject link
-			message1.setSubject("Testing Subject");
-
-			// Create object to add multimedia type content
-			BodyPart messageBodyPart1 = new MimeBodyPart();
-
-			// Set the body of email
-			messageBodyPart1.setText("This is message body");
-
-			// Create object of MimeMultipart class
-			Multipart multipart = new MimeMultipart();
-
-			multipart.addBodyPart(messageBodyPart1);
-
-			// set the content
-			message1.setContent(multipart);
-
-			// finally send the email
-			Transport.send(message1);
-
-			System.out.println("=====Email Sent=====");
-
-		} catch (MessagingException e) {
-
-			throw new RuntimeException(e);
-
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		} finally {
+			try {
+				if (bw != null)
+					bw.close();
+			} catch (Exception ex) {
+				System.out.println("Error in closing the BufferedWriter" + ex);
+			}
 		}
 
 	}
