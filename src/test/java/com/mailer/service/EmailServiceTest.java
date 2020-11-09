@@ -1,11 +1,12 @@
 package com.mailer.service;
 
+import static org.mockito.Mockito.when;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,111 +28,104 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-//import com.mailer.configuration.MailConfig;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.testng.Reporter;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 /**
- * Email service class
+ * Email service class test cases
  * 
  * @version 1.0 06-NOV-20
  * @Author Vinayak Mahajan
  *
  **/
 @Service
-public class EmailService {
-	
-	private static Logger log=LoggerFactory.getLogger(EmailService.class);
-	
-	@Autowired
+public class EmailServiceTest extends AbstractTestNGSpringContextTests {
+
+	@Mock
 	private JavaMailSender javaMailSender;
 	
-	//@Autowired
-	//private static MailConfig mailConfig;
-
-	private static Map<String, String> credentials = new HashMap<>();
-
-	private static List<String> recipientList = new ArrayList<String>();
+	@InjectMocks
+	private EmailService emailService;
 	
+	private MockMvc mockMvc;
 	
+	@Mock
+	private Properties props;
 
-	public EmailService(JavaMailSender javaMailSender) {
-		this.javaMailSender = javaMailSender;
-		
-		log.info("Intilizing creadentials for sending mail");
-		
+	@Mock
+	Message message;
+	
+	@Mock
+	private Map<String, String> credentials = new HashMap<>();
+
+	@Mock
+	private List<String> recipientList = new ArrayList<String>();
+	
+	@BeforeTest
+    public void init() {
+        MockitoAnnotations.initMocks(this);
+               mockMvc = MockMvcBuilders.standaloneSetup(emailService).build();         
+    }
+
+	@BeforeTest
+	public void initEmail() {
+
+		Reporter.log("Initilizing creadentials for sending mail");
 		credentials.put("testing20201011@gmail.com", "dell@123");
 		credentials.put("testing20201012@gmail.com", "dell@123");
 		credentials.put("testing20201013@gmail.com", "dell@123");
 		credentials.put("testing20201014@gmail.com", "dell@123");
 		credentials.put("testing20201015@gmail.com", "dell@123");
 		
-		log.info("Intilizing recipient for sending mail");
-		
+		Reporter.log("Initilizing recipient");
 		recipientList.add("testing20201011@yahoo.com");
 		recipientList.add("testing20201012@yahoo.com");
 		recipientList.add("testing20201013@yahoo.com");
 		recipientList.add("testing20201014@yahoo.com");
 		recipientList.add("testing20201015@yahoo.com");
-		
-		
+		 
+		props = new Properties();
+
+		Reporter.log("set properties");
+		props.put("mail.smtp.host", "smtp.gmail.com");
+		props.put("mail.smtp.socketFactory.port", "465");
+		props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+		props.put("mail.smtp.auth", "true");
+		props.put("mail.smtp.port", "465");
 	}
 
-	/**
-	 * Send mail
-	 * 
-	 * @throws MailException
-	 * @throws InterruptedException
-	 * @throws IOException 
-	 * 
-	 */
-	@Async
-	public static void sendMail() throws MailException, InterruptedException, IOException {
+	
+	@Test
+	public void sendMailTest() throws MailException, InterruptedException, IOException {
 
-		log.info("Reading mail body from a file");
-		
-		ClassPathResource resource = new ClassPathResource("mailBody.txt");
-		InputStream fis = resource.getInputStream();
-		
-		byte[] buffer = new byte[10];
-		StringBuilder sb = new StringBuilder();
-		while (fis.read(buffer) != -1) {
-			sb.append(new String(buffer));
-			buffer = new byte[10];
-		}
-		fis.close();
-
-		String body = sb.toString();
-		
-		 Properties properties = new Properties();
-	        properties.put("mail.smtp.host", "smtp.gmail.com");
-	        properties.put("mail.smtp.socketFactory.port", "465");
-	        properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-	        properties.put("mail.smtp.auth", "true");
-	        properties.put("mail.smtp.port", "465");
+		String body = "Testing body";
+		Reporter.log("Mail body-->"+body);
 
 		int sCount = 0;
 		int rCount = 0;
-
+		Reporter.log("Sending mail for from each creadentials to 5 recipient");
 		for (Map.Entry<String, String> cread : credentials.entrySet()) {
 			++sCount;
 			rCount=0;
 			for (String recipient : recipientList) {
 				++rCount;
-				try {
-				// This will handle the complete authentication
-				Session session = Session.getDefaultInstance(properties,
+				Reporter.log("setting authentication");
+				Session session = Session.getDefaultInstance(props,
 
 						new javax.mail.Authenticator() {
-							@Override
+
 							protected PasswordAuthentication getPasswordAuthentication() {
 
 								return new PasswordAuthentication(cread.getKey(), cread.getKey());
@@ -140,59 +134,43 @@ public class EmailService {
 
 						});
 
-				
+				try {
 
-					// Create object of MimeMessage class
-					Message message = new MimeMessage(session);
 
-					// Set the from address
+					message = new MimeMessage(session);
+
 					message.setFrom(new InternetAddress(cread.getKey()));
-					log.info("Mail from-->{}",cread.getKey());
-
-					// Set the recipient address
+					Reporter.log("Mail from-->"+cread.getKey());
 					message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipient));
-					log.info("Mail to-->{}",recipient);
+					Reporter.log("Mail to-->"+recipient);
 					
-					String subLine= sCount + " VINAYAK VASANTRAO MAHAJAN " + rCount;
-					
-					log.info("Mail subject-->{}",subLine);
-					
-					// Add the subject link
+					String subLine=sCount + "VINAYAK VASANTRAO MAHAJAN" + rCount;
 					message.setSubject(subLine);
+					Reporter.log("Subject line-->"+subLine);
 
-					writeFile(subLine);
-
-					// Create object to add multimedia type content
+					when(writeFile(subLine)).thenReturn(true);
 					BodyPart messageBodyPart = new MimeBodyPart();
 
-					// Set the body of email
 					messageBodyPart.setText(body);
-					
-					// Create object of MimeMultipart class
-					Multipart multipart = new MimeMultipart();
 
-					// Part two is attachment
-					messageBodyPart = new MimeBodyPart();
+					Reporter.log("setting attachment");
 					String filename = "attachment.txt";
 					DataSource source = new FileDataSource(filename);
 					messageBodyPart.setDataHandler(new DataHandler(source));
 					messageBodyPart.setFileName(filename);
 
+					Multipart multipart = new MimeMultipart();
 					multipart.addBodyPart(messageBodyPart);
 
-					// set the content
 					message.setContent(multipart);
-
-					// finally send the email
 					Transport.send(message);
-
-					System.out.println("=====Email Sent=====");
-
+					
+					
 				} catch (MessagingException e) {
 
 					throw new RuntimeException(e);
 
-				} 
+				}
 			}
 		}
 
@@ -203,7 +181,7 @@ public class EmailService {
 	 * 
 	 * @param content
 	 */
-	public static void writeFile(String content) {
+	public Boolean writeFile(String content) {
 		BufferedWriter bw = null;
 		try {
 			File file = new File("attachment.txt");
@@ -216,9 +194,11 @@ public class EmailService {
 			bw = new BufferedWriter(fw);
 			bw.write(content);
 			System.out.println("File written Successfully");
-
+			return true;
 		} catch (IOException ioe) {
+			
 			ioe.printStackTrace();
+			return false;
 		} finally {
 			try {
 				if (bw != null)

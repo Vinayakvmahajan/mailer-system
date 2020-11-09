@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="1" passed="1">
+  <reporter-output>
+    <line>
+      <![CDATA[Initilizing creadentials for sending mail<br>]]>
+    </line>
+    <line>
+      <![CDATA[Initilizing recipient<br>]]>
+    </line>
+    <line>
+      <![CDATA[set properties<br>]]>
+    </line>
+    <line>
+      <![CDATA[Mail body--]Testing body<br>]]>
+    </line>
+    <line>
+      <![CDATA[Sending mail for from each creadentials to 5 recipient<br>]]>
+    </line>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="2300" started-at="2020-11-09T14:37:54Z" finished-at="2020-11-09T14:37:56Z">
+    <groups>
+    </groups>
+    <test name="Default test" duration-ms="2300" started-at="2020-11-09T14:37:54Z" finished-at="2020-11-09T14:37:56Z">
+      <class name="com.mailer.service.EmailServiceTest">
+        <test-method status="PASS" signature="init()[pri:0, instance:com.mailer.service.EmailServiceTest@65466a6a]" name="init" is-config="true" duration-ms="2061" started-at="2020-11-09T20:07:54Z" finished-at="2020-11-09T20:07:56Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- init -->
+        <test-method status="PASS" signature="initEmail()[pri:0, instance:com.mailer.service.EmailServiceTest@65466a6a]" name="initEmail" is-config="true" duration-ms="16" started-at="2020-11-09T20:07:56Z" finished-at="2020-11-09T20:07:56Z">
+          <reporter-output>
+            <line>
+              <![CDATA[Initilizing creadentials for sending mail<br>]]>
+            </line>
+            <line>
+              <![CDATA[Initilizing recipient<br>]]>
+            </line>
+            <line>
+              <![CDATA[set properties<br>]]>
+            </line>
+          </reporter-output>
+        </test-method> <!-- initEmail -->
+        <test-method status="PASS" signature="springTestContextBeforeTestClass()[pri:0, instance:com.mailer.service.EmailServiceTest@65466a6a]" name="springTestContextBeforeTestClass" is-config="true" duration-ms="4" started-at="2020-11-09T20:07:56Z" finished-at="2020-11-09T20:07:56Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextBeforeTestClass -->
+        <test-method status="PASS" signature="springTestContextPrepareTestInstance()[pri:0, instance:com.mailer.service.EmailServiceTest@65466a6a]" name="springTestContextPrepareTestInstance" is-config="true" duration-ms="186" started-at="2020-11-09T20:07:56Z" depends-on-methods="org.springframework.test.context.testng.AbstractTestNGSpringContextTests.springTestContextBeforeTestClass" finished-at="2020-11-09T20:07:56Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextPrepareTestInstance -->
+        <test-method status="PASS" signature="springTestContextBeforeTestMethod(java.lang.reflect.Method)[pri:0, instance:com.mailer.service.EmailServiceTest@65466a6a]" name="springTestContextBeforeTestMethod" is-config="true" duration-ms="3" started-at="2020-11-09T20:07:56Z" finished-at="2020-11-09T20:07:56Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void com.mailer.service.EmailServiceTest.sendMailTest() throws org.springframework.mail.MailException,java.lang.InterruptedException,java.io.IOException]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextBeforeTestMethod -->
+        <test-method status="PASS" signature="sendMailTest()[pri:0, instance:com.mailer.service.EmailServiceTest@65466a6a]" name="sendMailTest" duration-ms="10" started-at="2020-11-09T20:07:56Z" finished-at="2020-11-09T20:07:56Z">
+          <reporter-output>
+            <line>
+              <![CDATA[Mail body--]Testing body<br>]]>
+            </line>
+            <line>
+              <![CDATA[Sending mail for from each creadentials to 5 recipient<br>]]>
+            </line>
+          </reporter-output>
+        </test-method> <!-- sendMailTest -->
+        <test-method status="PASS" signature="springTestContextAfterTestMethod(java.lang.reflect.Method)[pri:0, instance:com.mailer.service.EmailServiceTest@65466a6a]" name="springTestContextAfterTestMethod" is-config="true" duration-ms="3" started-at="2020-11-09T20:07:56Z" finished-at="2020-11-09T20:07:56Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void com.mailer.service.EmailServiceTest.sendMailTest() throws org.springframework.mail.MailException,java.lang.InterruptedException,java.io.IOException]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextAfterTestMethod -->
+        <test-method status="PASS" signature="springTestContextAfterTestClass()[pri:0, instance:com.mailer.service.EmailServiceTest@65466a6a]" name="springTestContextAfterTestClass" is-config="true" duration-ms="3" started-at="2020-11-09T20:07:56Z" finished-at="2020-11-09T20:07:56Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextAfterTestClass -->
+      </class> <!-- com.mailer.service.EmailServiceTest -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>
